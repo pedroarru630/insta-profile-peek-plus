@@ -20,7 +20,7 @@ const ProfileConfirmation = () => {
     const storedProfile = sessionStorage.getItem('other_instagram_profile');
     if (storedProfile) {
       const parsed = JSON.parse(storedProfile);
-      console.log('Loaded profile data:', parsed);
+      console.log('Loaded profile data for confirmation:', parsed);
       setProfileData(parsed);
     } else {
       // If no profile data, redirect back to input
@@ -48,7 +48,10 @@ const ProfileConfirmation = () => {
   }
 
   const displayName = profileData.full_name || profileData.username;
-  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
+  const hasValidProfilePic = profileData.profile_pic_url && profileData.profile_pic_url !== '/placeholder.svg';
+
+  console.log('Profile confirmation - hasValidProfilePic:', hasValidProfilePic);
+  console.log('Profile confirmation - profile_pic_url:', profileData.profile_pic_url);
 
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
@@ -63,7 +66,7 @@ const ProfileConfirmation = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              {!isPlaceholder && (
+              {hasValidProfilePic ? (
                 <AvatarImage 
                   src={profileData.profile_pic_url}
                   alt={displayName}
@@ -72,7 +75,7 @@ const ProfileConfirmation = () => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
-              )}
+              ) : null}
               <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>

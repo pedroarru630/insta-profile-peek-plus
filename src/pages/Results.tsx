@@ -1,4 +1,3 @@
-
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Check } from "lucide-react";
@@ -21,6 +20,7 @@ const Results = () => {
     const storedProfile = sessionStorage.getItem('other_instagram_profile');
     if (storedProfile) {
       const parsed = JSON.parse(storedProfile);
+      console.log('Results page - loaded profile data:', parsed);
       setProfileData(parsed);
     }
   }, []);
@@ -46,7 +46,10 @@ const Results = () => {
   }
 
   const displayName = profileData.full_name || profileData.username;
-  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
+  const hasValidProfilePic = profileData.profile_pic_url && profileData.profile_pic_url !== '/placeholder.svg';
+
+  console.log('Results page - hasValidProfilePic:', hasValidProfilePic);
+  console.log('Results page - profile_pic_url:', profileData.profile_pic_url);
 
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
@@ -61,7 +64,7 @@ const Results = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              {!isPlaceholder && (
+              {hasValidProfilePic ? (
                 <AvatarImage 
                   src={profileData.profile_pic_url}
                   alt={displayName}
@@ -70,7 +73,7 @@ const Results = () => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
-              )}
+              ) : null}
               <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>

@@ -12,7 +12,7 @@ interface ApifyResponse {
     items?: Array<{
       username: string;
       fullName?: string;
-      profilePicUrlHD: string;
+      profilePicUrlHD?: string;
     }>;
   };
 }
@@ -49,7 +49,7 @@ export class InstagramService {
       }
 
       const responseJson: ApifyResponse = await response.json();
-      console.log('Apify API response:', responseJson);
+      console.log('Full Apify API response:', responseJson);
 
       // Check if we have URLs from search (indicates profile exists)
       if (responseJson.urlsFromSearch && responseJson.urlsFromSearch.length > 0) {
@@ -68,6 +68,7 @@ export class InstagramService {
           const profileData = items[0];
           console.log('Profile data found:', profileData);
           
+          // Extract profile picture URL - this is the key fix
           if (profileData.profilePicUrlHD) {
             profilePicUrl = profileData.profilePicUrlHD;
             console.log('Profile picture URL extracted:', profilePicUrl);
@@ -78,15 +79,18 @@ export class InstagramService {
           }
         }
         
-        return {
+        const finalProfile = {
           username: urlUsername,
           full_name: fullName,
           profile_pic_url: profilePicUrl,
           exists: true
         };
+        
+        console.log('Final profile object being returned:', finalProfile);
+        return finalProfile;
       }
 
-      // Check legacy format (data.items) in case API response changes
+      // Fallback for legacy format
       const items = responseJson.data?.items || [];
       if (items.length > 0) {
         const profileData = items[0];

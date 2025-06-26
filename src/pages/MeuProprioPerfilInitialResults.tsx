@@ -1,4 +1,3 @@
-
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Check } from "lucide-react";
@@ -41,7 +40,10 @@ const MeuProprioPerfilInitialResults = () => {
   }
 
   const displayName = profileData.full_name || profileData.username;
-  const hasValidImage = profileData.profile_pic_url && profileData.profile_pic_url !== '/placeholder.svg';
+  const hasValidProfilePic = profileData.profile_pic_url && profileData.profile_pic_url !== '/placeholder.svg';
+
+  console.log('MeuProprioPerfilInitialResults - hasValidProfilePic:', hasValidProfilePic);
+  console.log('MeuProprioPerfilInitialResults - profile_pic_url:', profileData.profile_pic_url);
 
   const findings = [
     `Foram encontradas 9 menções a @${profileData.username} em mensagens no direct`,
@@ -64,7 +66,7 @@ const MeuProprioPerfilInitialResults = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              {hasValidImage && (
+              {hasValidProfilePic ? (
                 <AvatarImage 
                   src={profileData.profile_pic_url} 
                   alt={displayName}
@@ -73,7 +75,7 @@ const MeuProprioPerfilInitialResults = () => {
                     e.currentTarget.style.display = 'none';
                   }}
                 />
-              )}
+              ) : null}
               <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
