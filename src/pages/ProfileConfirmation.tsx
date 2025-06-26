@@ -47,16 +47,8 @@ const ProfileConfirmation = () => {
     );
   }
 
-  // Generate Instagram profile pic URL based on username
-  const getProfilePicUrl = (username: string) => {
-    // Try to use a more reliable Instagram profile pic URL format
-    return `https://www.instagram.com/${username}/`;
-  };
-
   const displayName = profileData.full_name || profileData.username;
-  const profilePicUrl = profileData.profile_pic_url.includes('placeholder.svg') 
-    ? getProfilePicUrl(profileData.username)
-    : profileData.profile_pic_url;
+  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
 
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
@@ -71,14 +63,16 @@ const ProfileConfirmation = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              <AvatarImage 
-                src={profilePicUrl}
-                alt={displayName}
-                onError={(e) => {
-                  console.log('Profile image failed to load, using fallback');
-                  e.currentTarget.style.display = 'none';
-                }}
-              />
+              {!isPlaceholder && (
+                <AvatarImage 
+                  src={profileData.profile_pic_url}
+                  alt={displayName}
+                  onError={(e) => {
+                    console.log('Profile image failed to load, using fallback');
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              )}
               <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
                 {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>

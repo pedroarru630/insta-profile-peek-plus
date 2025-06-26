@@ -44,6 +44,9 @@ const MeuProprioPerfilConfirmation = () => {
     );
   }
 
+  const displayName = profileData.full_name || profileData.username;
+  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
+
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
       {/* Progress bar at top */}
@@ -57,16 +60,25 @@ const MeuProprioPerfilConfirmation = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              <AvatarImage src={profileData.profile_pic_url} alt={profileData.full_name || profileData.username} />
-              <AvatarFallback className="text-2xl">
-                {(profileData.full_name || profileData.username).charAt(0).toUpperCase()}
+              {!isPlaceholder && (
+                <AvatarImage 
+                  src={profileData.profile_pic_url} 
+                  alt={displayName}
+                  onError={(e) => {
+                    console.log('Profile image failed to load, using fallback');
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              )}
+              <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
+                {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
 
           {/* Name */}
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            Olá {profileData.full_name || profileData.username}
+            Olá {displayName}
           </h1>
 
           {/* Handle */}

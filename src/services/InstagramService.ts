@@ -59,10 +59,29 @@ export class InstagramService {
         // Extract username from URL if possible
         const urlUsername = instagramUrl.match(/instagram\.com\/([^\/]+)/)?.[1] || cleanUsername;
         
+        // Check if we also have detailed profile data with profile picture
+        const items = responseJson.data?.items || [];
+        let profilePicUrl = '/placeholder.svg';
+        let fullName = urlUsername;
+        
+        if (items.length > 0) {
+          const profileData = items[0];
+          console.log('Profile data found:', profileData);
+          
+          if (profileData.profilePicUrlHD) {
+            profilePicUrl = profileData.profilePicUrlHD;
+            console.log('Profile picture URL extracted:', profilePicUrl);
+          }
+          
+          if (profileData.fullName) {
+            fullName = profileData.fullName;
+          }
+        }
+        
         return {
           username: urlUsername,
-          full_name: urlUsername, // Use username as display name since we don't have full name
-          profile_pic_url: `https://www.instagram.com/${urlUsername}/`, // We'll use a placeholder approach
+          full_name: fullName,
+          profile_pic_url: profilePicUrl,
           exists: true
         };
       }
