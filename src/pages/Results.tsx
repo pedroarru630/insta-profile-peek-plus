@@ -4,21 +4,55 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+interface ProfileData {
+  username: string;
+  full_name?: string;
+  profile_pic_url: string;
+  exists: boolean;
+}
 
 const Results = () => {
   const navigate = useNavigate();
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    const storedProfile = sessionStorage.getItem('other_instagram_profile');
+    if (storedProfile) {
+      const parsed = JSON.parse(storedProfile);
+      setProfileData(parsed);
+    }
+  }, []);
 
   const findings = [
-    "3 conversas com chamada de vídeo foram excluídas no direct de fernanda",
+    `3 conversas com chamada de vídeo foram excluídas no direct de ${profileData?.username || 'usuário'}`,
     "A inteligência artificial conseguiu resgatar prints de conversas com cunho sexual",
     "11 novos stalker's foram identificados na última semana",
-    "fernanda tem um fã! Um super stalker está visitando seu perfil por 11 dias consecutivos",
-    "3 perfis que não seguem fernanda adicionaram nos melhores amigos"
+    `${profileData?.username || 'usuário'} tem um fã! Um super stalker está visitando seu perfil por 11 dias consecutivos`,
+    `3 perfis que não seguem ${profileData?.username || 'usuário'} adicionaram nos melhores amigos`
   ];
 
   const handleViewFullReport = () => {
     navigate('/final-results');
   };
+
+  if (!profileData) {
+    return (
+      <div className="min-h-screen bg-gray-200 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  const displayName = profileData.full_name || profileData.username;
+  const getProfilePicUrl = (username: string) => {
+    return `https://www.instagram.com/${username}/`;
+  };
+
+  const profilePicUrl = profileData.profile_pic_url.includes('placeholder.svg') 
+    ? getProfilePicUrl(profileData.username)
+    : profileData.profile_pic_url;
 
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
@@ -33,19 +67,28 @@ const Results = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              <AvatarImage src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=200&h=200&fit=crop&crop=face" alt="Fernanda" />
-              <AvatarFallback className="text-2xl">F</AvatarFallback>
+              <AvatarImage 
+                src={profilePicUrl}
+                alt={displayName}
+                onError={(e) => {
+                  console.log('Profile image failed to load, using fallback');
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </div>
 
           {/* Name */}
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            Fernanda
+            {displayName}
           </h1>
 
           {/* Handle */}
           <p className="text-center text-orange-500 mb-8 font-medium">
-            @afelopes
+            @{profileData.username}
           </p>
 
           {/* Findings */}

@@ -9,6 +9,7 @@ interface ProfileData {
   username: string;
   full_name?: string;
   profile_pic_url: string;
+  exists: boolean;
 }
 
 const ProfileConfirmation = () => {
@@ -18,7 +19,9 @@ const ProfileConfirmation = () => {
   useEffect(() => {
     const storedProfile = sessionStorage.getItem('other_instagram_profile');
     if (storedProfile) {
-      setProfileData(JSON.parse(storedProfile));
+      const parsed = JSON.parse(storedProfile);
+      console.log('Loaded profile data:', parsed);
+      setProfileData(parsed);
     } else {
       // If no profile data, redirect back to input
       navigate('/perfil-outras-pessoas');
@@ -44,6 +47,17 @@ const ProfileConfirmation = () => {
     );
   }
 
+  // Generate Instagram profile pic URL based on username
+  const getProfilePicUrl = (username: string) => {
+    // Try to use a more reliable Instagram profile pic URL format
+    return `https://www.instagram.com/${username}/`;
+  };
+
+  const displayName = profileData.full_name || profileData.username;
+  const profilePicUrl = profileData.profile_pic_url.includes('placeholder.svg') 
+    ? getProfilePicUrl(profileData.username)
+    : profileData.profile_pic_url;
+
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
       {/* Progress bar at top */}
@@ -57,16 +71,23 @@ const ProfileConfirmation = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              <AvatarImage src={profileData.profile_pic_url} alt={profileData.full_name || profileData.username} />
-              <AvatarFallback className="text-2xl">
-                {(profileData.full_name || profileData.username).charAt(0).toUpperCase()}
+              <AvatarImage 
+                src={profilePicUrl}
+                alt={displayName}
+                onError={(e) => {
+                  console.log('Profile image failed to load, using fallback');
+                  e.currentTarget.style.display = 'none';
+                }}
+              />
+              <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
+                {displayName.charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
           </div>
 
           {/* Name */}
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            {profileData.full_name || profileData.username}
+            {displayName}
           </h1>
 
           {/* Handle */}

@@ -6,15 +6,14 @@ interface InstagramProfile {
   exists: boolean;
 }
 
-interface ApifyProfileData {
-  username: string;
-  fullName?: string;
-  profilePicUrlHD: string;
-}
-
 interface ApifyResponse {
-  data: {
-    items: ApifyProfileData[];
+  urlsFromSearch?: string[];
+  data?: {
+    items?: Array<{
+      username: string;
+      fullName?: string;
+      profilePicUrlHD: string;
+    }>;
   };
 }
 
@@ -52,26 +51,42 @@ export class InstagramService {
       const responseJson: ApifyResponse = await response.json();
       console.log('Apify API response:', responseJson);
 
-      const items = responseJson.data?.items || [];
-
-      if (items.length === 0) {
-        console.log('No profile data returned from API');
+      // Check if we have URLs from search (indicates profile exists)
+      if (responseJson.urlsFromSearch && responseJson.urlsFromSearch.length > 0) {
+        const instagramUrl = responseJson.urlsFromSearch[0];
+        console.log('Profile URL found:', instagramUrl);
+        
+        // Extract username from URL if possible
+        const urlUsername = instagramUrl.match(/instagram\.com\/([^\/]+)/)?.[1] || cleanUsername;
+        
         return {
-          username: cleanUsername,
-          full_name: undefined,
-          profile_pic_url: '/placeholder.svg',
-          exists: false
+          username: urlUsername,
+          full_name: urlUsername, // Use username as display name since we don't have full name
+          profile_pic_url: `https://www.instagram.com/${urlUsername}/`, // We'll use a placeholder approach
+          exists: true
         };
       }
 
-      const profileData = items[0];
-      console.log('Profile data found:', profileData);
-      
+      // Check legacy format (data.items) in case API response changes
+      const items = responseJson.data?.items || [];
+      if (items.length > 0) {
+        const profileData = items[0];
+        console.log('Profile data found in legacy format:', profileData);
+        
+        return {
+          username: profileData.username || cleanUsername,
+          full_name: profileData.fullName,
+          profile_pic_url: profileData.profilePicUrlHD || '/placeholder.svg',
+          exists: true
+        };
+      }
+
+      console.log('No profile data returned from API');
       return {
-        username: profileData.username || cleanUsername,
-        full_name: profileData.fullName,
-        profile_pic_url: profileData.profilePicUrlHD || '/placeholder.svg',
-        exists: true
+        username: cleanUsername,
+        full_name: undefined,
+        profile_pic_url: '/placeholder.svg',
+        exists: false
       };
       
     } catch (error) {
