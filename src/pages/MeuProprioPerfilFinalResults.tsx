@@ -1,10 +1,41 @@
-
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+interface ProfileData {
+  username: string;
+  full_name?: string;
+  profile_pic_url: string;
+}
 
 const MeuProprioPerfilFinalResults = () => {
+  const navigate = useNavigate();
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    const storedProfile = sessionStorage.getItem('instagram_profile');
+    if (storedProfile) {
+      setProfileData(JSON.parse(storedProfile));
+    } else {
+      // If no profile data, redirect back to input
+      navigate('/meu-proprio-perfil-input');
+    }
+  }, [navigate]);
+
+  if (!profileData) {
+    return (
+      <div className="min-h-screen bg-gray-200 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  const displayName = profileData.full_name || profileData.username;
+  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
+
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
       {/* Progress bar at top */}
@@ -18,8 +49,19 @@ const MeuProprioPerfilFinalResults = () => {
         <div className="bg-white rounded-3xl p-8 max-w-md mx-auto shadow-lg">
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              <AvatarImage src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=200&h=200&fit=crop&crop=face" alt="Fernanda" />
-              <AvatarFallback className="text-2xl">F</AvatarFallback>
+              {!isPlaceholder && (
+                <AvatarImage 
+                  src={profileData.profile_pic_url} 
+                  alt={displayName}
+                  onError={(e) => {
+                    console.log('Profile image failed to load, using fallback');
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              )}
+              <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </div>
 
@@ -28,7 +70,7 @@ const MeuProprioPerfilFinalResults = () => {
           </h1>
           
           <p className="text-center text-orange-500 mb-8 font-medium">
-            @afelopes
+            @{profileData.username}
           </p>
 
           {/* Alert blocks */}

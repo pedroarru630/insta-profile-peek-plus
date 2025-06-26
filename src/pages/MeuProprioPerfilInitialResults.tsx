@@ -4,21 +4,50 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+interface ProfileData {
+  username: string;
+  full_name?: string;
+  profile_pic_url: string;
+}
 
 const MeuProprioPerfilInitialResults = () => {
   const navigate = useNavigate();
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    const storedProfile = sessionStorage.getItem('instagram_profile');
+    if (storedProfile) {
+      setProfileData(JSON.parse(storedProfile));
+    } else {
+      // If no profile data, redirect back to input
+      navigate('/meu-proprio-perfil-input');
+    }
+  }, [navigate]);
+
+  const handleContinue = () => {
+    navigate('/meu-proprio-perfil-final-results');
+  };
+
+  if (!profileData) {
+    return (
+      <div className="min-h-screen bg-gray-200 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-orange-500"></div>
+      </div>
+    );
+  }
+
+  const displayName = profileData.full_name || profileData.username;
+  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
 
   const findings = [
-    "Foram encontradas 9 menções a @afelopes em mensagens no direct",
+    `Foram encontradas 9 menções a @${profileData.username} em mensagens no direct`,
     "Nossa IA conseguiu resgatar alguns prints de conversas falando de você",
     "11 novos stalker's foram identificados na última semana",
     "Você tem um fã! Um stalker está visitando seu perfil por 11 dias consecutivos",
     "3 perfis que não seguem você te adicionaram nos melhores amigos"
   ];
-
-  const handleContinue = () => {
-    navigate('/meu-proprio-perfil-final-results');
-  };
 
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
@@ -33,19 +62,30 @@ const MeuProprioPerfilInitialResults = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              <AvatarImage src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=200&h=200&fit=crop&crop=face" alt="Fernanda" />
-              <AvatarFallback className="text-2xl">F</AvatarFallback>
+              {!isPlaceholder && (
+                <AvatarImage 
+                  src={profileData.profile_pic_url} 
+                  alt={displayName}
+                  onError={(e) => {
+                    console.log('Profile image failed to load, using fallback');
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              )}
+              <AvatarFallback className="text-2xl bg-orange-100 text-orange-600">
+                {displayName.charAt(0).toUpperCase()}
+              </AvatarFallback>
             </Avatar>
           </div>
 
           {/* Name */}
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            Olá Fernanda
+            Olá {displayName}
           </h1>
 
           {/* Handle */}
           <p className="text-center text-orange-500 mb-8 font-medium">
-            @afelopes
+            @{profileData.username}
           </p>
 
           {/* Findings */}
