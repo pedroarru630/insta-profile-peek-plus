@@ -1,11 +1,35 @@
-
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Check, Lock, AlertTriangle, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+
+interface ProfileData {
+  username: string;
+  full_name?: string;
+  profile_pic_url: string;
+}
 
 const FinalResults = () => {
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    const storedProfile = sessionStorage.getItem('instagram_profile');
+    console.log('Stored profile data:', storedProfile);
+    if (storedProfile) {
+      const parsed = JSON.parse(storedProfile);
+      console.log('Parsed profile data:', parsed);
+      setProfileData(parsed);
+    }
+  }, []);
+
+  // Fallback data if no profile is stored
+  const displayName = profileData?.full_name || profileData?.username || "Fernanda";
+  const username = profileData?.username || "afelopes";
+  const hasValidImage = profileData?.profile_pic_url && profileData.profile_pic_url !== '/placeholder.svg';
+  const profileImage = hasValidImage ? profileData.profile_pic_url : "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=200&h=200&fit=crop&crop=face";
+
   const mainActivities = [
     {
       handle: "@m*********",
@@ -24,7 +48,7 @@ const FinalResults = () => {
     },
     {
       handle: "@d*********",
-      action: "Passou +52m em chamada de vídeo com fernanda",
+      action: `Passou +52m em chamada de vídeo com ${displayName.toLowerCase()}`,
       image: "photo-1618160702438-9b02ab6515c9"
     }
   ];
@@ -121,12 +145,12 @@ const FinalResults = () => {
           <p className="text-sm text-gray-600 text-center mb-4">
             Nossa inteligência artificial procurou por<br />
             todo o Instagram atrás de conversas<br />
-            no Direct de afelopes
+            no Direct de @{username}
           </p>
 
           <div className="text-center mb-4">
             <h3 className="text-lg font-bold text-gray-800">4 Prints extraídos</h3>
-            <p className="text-sm text-orange-500 font-medium">na DM de @afelopes</p>
+            <p className="text-sm text-orange-500 font-medium">na DM de @{username}</p>
             <p className="text-xs text-gray-600 mt-1">
               Detectamos várias mensagens com<br />
               cunho sexual e nudez explícita
@@ -139,7 +163,7 @@ const FinalResults = () => {
               <div className="p-4 space-y-4">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-orange-500 rounded-full"></div>
-                  <span className="text-white text-sm">Enviou story de @afelopes</span>
+                  <span className="text-white text-sm">Enviou story de @{username}</span>
                 </div>
                 <div className="w-full h-32 bg-gradient-to-br from-green-400 to-blue-500 rounded-lg blur-sm"></div>
                 <div className="bg-blue-600 text-white text-xs px-3 py-2 rounded-full self-end ml-auto w-fit">
@@ -168,7 +192,7 @@ const FinalResults = () => {
             <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
               <span className="text-2xl font-bold text-gray-800">10</span>
               <p className="text-sm text-gray-700">
-                Seguidores de <span className="font-medium">fernanda</span> possuem<br />
+                Seguidores de <span className="font-medium">{displayName.toLowerCase()}</span> possuem<br />
                 interesses sexual ❤️
               </p>
             </div>
@@ -176,7 +200,7 @@ const FinalResults = () => {
             <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
               <span className="text-2xl font-bold text-gray-800">6</span>
               <p className="text-sm text-gray-700">
-                Conversas de <span className="font-medium">fernanda</span> no Direct<br />
+                Conversas de <span className="font-medium">{displayName.toLowerCase()}</span> no Direct<br />
                 contêm Nudez 🔥
               </p>
             </div>
@@ -185,7 +209,7 @@ const FinalResults = () => {
               <AlertTriangle className="w-5 h-5 text-orange-500 mt-0.5" />
               <p className="text-sm text-gray-700">
                 Perfis foram <span className="font-medium">restringidos</span> nos<br />
-                stories e posts de <span className="font-medium">fernanda</span> 🚫
+                stories e posts de <span className="font-medium">{displayName.toLowerCase()}</span> 🚫
               </p>
             </div>
           </div>
@@ -199,7 +223,7 @@ const FinalResults = () => {
         {/* SECTION 4 - Atividade nos Stories */}
         <div className="bg-white rounded-3xl p-6 shadow-lg">
           <h2 className="text-xl font-bold text-center text-gray-800 mb-6">
-            Atividade nos Stories<br />de @afelopes
+            Atividade nos Stories<br />de @{username}
           </h2>
 
           {/* Stories carousel */}
@@ -223,7 +247,7 @@ const FinalResults = () => {
 
           <p className="text-xs text-gray-600 text-center mb-4">
             Veja tudo que acontece nos stories de<br />
-            @afelopes no relatório completo
+            @{username} no relatório completo
           </p>
 
           <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white mb-6">
@@ -256,13 +280,13 @@ const FinalResults = () => {
           {/* Profile section */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              <AvatarImage src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?w=200&h=200&fit=crop&crop=face" alt="Fernanda" />
-              <AvatarFallback className="text-2xl">F</AvatarFallback>
+              <AvatarImage src={profileImage} alt={displayName} />
+              <AvatarFallback className="text-2xl">{displayName.charAt(0).toUpperCase()}</AvatarFallback>
             </Avatar>
           </div>
 
-          <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">Fernanda</h1>
-          <p className="text-center text-orange-500 mb-6 font-medium">@afelopes</p>
+          <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">{displayName}</h1>
+          <p className="text-center text-orange-500 mb-6 font-medium">@{username}</p>
 
           <h2 className="text-xl font-bold text-center text-gray-800 mb-6">Análise Concluída!</h2>
 
@@ -290,14 +314,14 @@ const FinalResults = () => {
                 <div>
                   <p className="text-sm text-red-800 font-medium mb-2">
                     1 Super Stalker, encontrado!<br />
-                    afelopes tem um fã no perfil
+                    @{username} tem um fã no perfil
                   </p>
                   <p className="text-xs text-red-600 mb-1">Isso não é só mais um stalker!</p>
                   
                   <div className="space-y-1 text-xs text-red-600">
                     <div className="flex items-center space-x-1">
                       <span className="text-red-500">⚠️</span>
-                      <span>Esse Super Stalker visitou o perfil de fernanda por 11 dias consecutivos</span>
+                      <span>Esse Super Stalker visitou o perfil de {displayName.toLowerCase()} por 11 dias consecutivos</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <span className="text-red-500">⚠️</span>
@@ -309,7 +333,7 @@ const FinalResults = () => {
                     </div>
                     <div className="flex items-center space-x-1">
                       <span className="text-red-500">⚠️</span>
-                      <span>Fernanda adicionou esse super stalker</span>
+                      <span>{displayName} adicionou esse super stalker</span>
                     </div>
                     <div className="flex items-center space-x-1">
                       <span className="text-red-500">⚠️</span>
@@ -376,7 +400,7 @@ const FinalResults = () => {
           </div>
 
           <p className="text-xs text-gray-600 text-center mb-4">
-            ...e outras 2 pessoas que não seguem fernanda
+            ...e outras 2 pessoas que não seguem {displayName.toLowerCase()}
           </p>
 
           <p className="text-xs text-red-500 text-center mb-6">

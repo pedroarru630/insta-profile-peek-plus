@@ -18,10 +18,12 @@ const MeuProprioPerfilInitialResults = () => {
 
   useEffect(() => {
     const storedProfile = sessionStorage.getItem('instagram_profile');
+    console.log('Stored profile data:', storedProfile);
     if (storedProfile) {
-      setProfileData(JSON.parse(storedProfile));
+      const parsed = JSON.parse(storedProfile);
+      console.log('Parsed profile data:', parsed);
+      setProfileData(parsed);
     } else {
-      // If no profile data, redirect back to input
       navigate('/meu-proprio-perfil-input');
     }
   }, [navigate]);
@@ -39,7 +41,7 @@ const MeuProprioPerfilInitialResults = () => {
   }
 
   const displayName = profileData.full_name || profileData.username;
-  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
+  const hasValidImage = profileData.profile_pic_url && profileData.profile_pic_url !== '/placeholder.svg';
 
   const findings = [
     `Foram encontradas 9 menções a @${profileData.username} em mensagens no direct`,
@@ -62,7 +64,7 @@ const MeuProprioPerfilInitialResults = () => {
           {/* Profile picture */}
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              {!isPlaceholder && (
+              {hasValidImage && (
                 <AvatarImage 
                   src={profileData.profile_pic_url} 
                   alt={displayName}

@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -17,10 +18,12 @@ const MeuProprioPerfilFinalResults = () => {
 
   useEffect(() => {
     const storedProfile = sessionStorage.getItem('instagram_profile');
+    console.log('Stored profile data:', storedProfile);
     if (storedProfile) {
-      setProfileData(JSON.parse(storedProfile));
+      const parsed = JSON.parse(storedProfile);
+      console.log('Parsed profile data:', parsed);
+      setProfileData(parsed);
     } else {
-      // If no profile data, redirect back to input
       navigate('/meu-proprio-perfil-input');
     }
   }, [navigate]);
@@ -34,7 +37,7 @@ const MeuProprioPerfilFinalResults = () => {
   }
 
   const displayName = profileData.full_name || profileData.username;
-  const isPlaceholder = profileData.profile_pic_url === '/placeholder.svg';
+  const hasValidImage = profileData.profile_pic_url && profileData.profile_pic_url !== '/placeholder.svg';
 
   return (
     <div className="min-h-screen bg-gray-200 flex flex-col">
@@ -49,7 +52,7 @@ const MeuProprioPerfilFinalResults = () => {
         <div className="bg-white rounded-3xl p-8 max-w-md mx-auto shadow-lg">
           <div className="flex justify-center mb-6">
             <Avatar className="w-24 h-24">
-              {!isPlaceholder && (
+              {hasValidImage && (
                 <AvatarImage 
                   src={profileData.profile_pic_url} 
                   alt={displayName}
@@ -164,7 +167,6 @@ const MeuProprioPerfilFinalResults = () => {
             <div className="bg-gray-100 rounded-lg p-4">
               <div className="flex items-start space-x-3">
                 <Avatar className="w-10 h-10">
-                  <AvatarImage src="/placeholder.svg" alt="User" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -177,7 +179,6 @@ const MeuProprioPerfilFinalResults = () => {
             <div className="bg-gray-100 rounded-lg p-4">
               <div className="flex items-start space-x-3">
                 <Avatar className="w-10 h-10">
-                  <AvatarImage src="/placeholder.svg" alt="User" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -203,7 +204,6 @@ const MeuProprioPerfilFinalResults = () => {
             <Card className="p-4 border border-gray-200 rounded-lg">
               <div className="flex items-center space-x-3">
                 <Avatar className="w-12 h-12">
-                  <AvatarImage src="/placeholder.svg" alt="Stalker" />
                   <AvatarFallback>M</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -218,7 +218,6 @@ const MeuProprioPerfilFinalResults = () => {
             <Card className="p-4 border border-gray-200 rounded-lg">
               <div className="flex items-center space-x-3">
                 <Avatar className="w-12 h-12">
-                  <AvatarImage src="/placeholder.svg" alt="Stalker" />
                   <AvatarFallback>J</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -233,7 +232,6 @@ const MeuProprioPerfilFinalResults = () => {
             <Card className="p-4 border border-gray-200 rounded-lg">
               <div className="flex items-center space-x-3">
                 <Avatar className="w-12 h-12">
-                  <AvatarImage src="/placeholder.svg" alt="Stalker" />
                   <AvatarFallback>P</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -258,7 +256,7 @@ const MeuProprioPerfilFinalResults = () => {
           </h2>
           
           <p className="text-center text-gray-600 mb-6 text-sm">
-            3 perfis que não seguem adicionaram aos melhores amigos
+            3 perfis que não seguem {displayName} adicionaram aos melhores amigos
           </p>
           
           <div className="flex justify-center space-x-4 mb-6">
